@@ -3,12 +3,21 @@
 
 #include "main.h"
 
-class ConcatStringTree {
-    int leftLength, size, id;
-    string data;
-    ConcatStringTree* left,* right;
-    
+class ConcatStringTree {    
 public:    
+    class Node {
+        public:
+        int leftLength, length, id;
+        string data;
+        Node* left,* right;
+        Node(string s, Node* pLeft = nullptr, Node* pRight = nullptr);
+        ~Node() {}
+
+        string preOrderString() const;
+        string preOrder() const;
+        int indexOf(char c) const;
+    };
+    Node* root;
     class ParentsTree {
         public:
         int id, height, parSize;
@@ -33,18 +42,16 @@ public:
     ParentsTree* pParent;
 
     // Helper functions
-    string preOrderString() const;
-    string preOrder() const;
     ConcatStringTree* subStr(int, int) const;
     ConcatStringTree* helpReverse() const;
 
     ConcatStringTree(const char * s);
     int length() const;
-    char get(int index);
-    int indexOf(char c);
+    char get(int index) const;
+    int indexOf(char c) const;
     string toStringPreOrder() const;
     string toString() const;
-    ConcatStringTree concat(ConcatStringTree & otherS);
+    ConcatStringTree concat(const ConcatStringTree & otherS) const;
     ConcatStringTree subString(int from, int to) const;
     ConcatStringTree reverse() const;
 
