@@ -1,7 +1,7 @@
 #include "ConcatStringTree.h"
 
 // Initialize curID
-static int curID = 1;
+// static int curID = 1;
 
 // Helper functions
     // ConcatStringTree
@@ -44,65 +44,65 @@ string ConcatStringTree::Node::preOrder() const {
     return output;
 }
 
-ConcatStringTree* ConcatStringTree::subStr(int from, int to) const {
-    if (from < 0 || to >= size)
+ConcatStringTree::Node* ConcatStringTree::Node::subStr(int from, int to) const {
+    if (from < 0 || to >= length)
         throw out_of_range("Index of string is invalid!");
     if (from >= to)
         throw logic_error("Invalid range!");
     
-    ConcatStringTree* newTree = new ConcatStringTree("");
+    Node* newTree = new Node("");
     if (!data.empty())
     {
         newTree->data = data.substr(from, to);
-        newTree->size = newTree->data.length();
+        newTree->length = newTree->data.length();
         return newTree;
     }
     
     if (from >= leftLength) {
         newTree->right = right->subStr(from - leftLength, to - leftLength);
-        newTree->size = newTree->right->size;
+        newTree->length = newTree->right->length;
     }
     else if (to < leftLength) {
         newTree->left = left->subStr(from, to);
-        newTree->leftLength = newTree->size = newTree->left->size;
+        newTree->leftLength = newTree->length = newTree->left->length;
     }
     else {
         newTree->left = left->subStr(from, leftLength - 1);
         newTree->right = right->subStr(0, to - leftLength);
-        newTree->leftLength = newTree->left->size;
-        newTree->size = newTree->left->size + newTree->right->size;
+        newTree->leftLength = newTree->left->length;
+        newTree->length = newTree->left->length + newTree->right->length;
     }
 
     return newTree;
 }
 
-ConcatStringTree* ConcatStringTree::helpReverse() const {
-    ConcatStringTree* newTree = new ConcatStringTree("");
+ConcatStringTree::Node* ConcatStringTree::Node::helpReverse() const {
+    Node* newTree = new Node("");
     if (!data.empty())
     {
-        for (int i = size - 1; i >= 0; i--)
+        for (int i = length - 1; i >= 0; i--)
             newTree->data += data[i];
-        newTree->size = data.length();
+        newTree->length = data.length();
         return newTree;
     }
     
-    newTree->leftLength = size - leftLength;
+    newTree->leftLength = length - leftLength;
     newTree->left = right->helpReverse();
     newTree->right = left->helpReverse();
 
     if (newTree->left) {
-        newTree->leftLength = newTree->left->size;
-        newTree->size = newTree->left->size;
+        newTree->leftLength = newTree->left->length;
+        newTree->length = newTree->left->length;
     }
     if (newTree->right)
-        newTree->size += newTree->right->size;
+        newTree->length += newTree->right->length;
     
 
     return newTree;
 }
 
     // ParentsTree
-string ConcatStringTree::ParentsTree::preOrderString() const {
+string ConcatStringTree::Node::ParentsTree::preOrderString() const {
     if (!this)
         return "";
 
@@ -116,7 +116,7 @@ string ConcatStringTree::ParentsTree::preOrderString() const {
     return output;
 }
 
-ConcatStringTree::ParentsTree* ConcatStringTree::ParentsTree::maxID(ParentsTree* root) {
+ConcatStringTree::Node::ParentsTree* ConcatStringTree::Node::ParentsTree::maxID(ParentsTree* root) {
     ParentsTree* current = root;
  
     while (current->pRight)
@@ -125,21 +125,20 @@ ConcatStringTree::ParentsTree* ConcatStringTree::ParentsTree::maxID(ParentsTree*
     return current;
 }
 
-int ConcatStringTree::ParentsTree::valueBalance(ParentsTree* root) {
+int ConcatStringTree::Node::ParentsTree::valueBalance(ParentsTree* root) {
     if (!root)
         return 0;
     return getHeight(root->pLeft) - getHeight(root->pRight);
 }
 // Node
-ConcatStringTree::Node::Node(string s, Node* pLeft = nullptr, Node* pRight = nullptr) : data(s), left(pLeft), right(pRight) {
-    leftLength = 0;
-    length = data.length();
-}
 
 int ConcatStringTree::Node::indexOf(char c) const {
     int pos = -1;
     if (!left && !right)
-        pos = data.find(c);
+        if (!data.empty())
+            return data.find(c);
+        else
+            return -1;
 
     if (pos != -1) {
         if (pos != string::npos)
@@ -168,14 +167,14 @@ int ConcatStringTree::Node::indexOf(char c) const {
 }
 
 // ConcatStringTree
-ConcatStringTree::ConcatStringTree(char const* s) {
+ConcatStringTree::ConcatStringTree(const char* s) {
     root = new Node(s);
 
-    pParent = nullptr;
-    root->id = curID;
-    pParent = pParent->insert(pParent, root->id);
-    pParent->parSize = 1;
-    curID++;
+    // pParent = nullptr;
+    // root->id = curID;
+    // pParent = pParent->insert(pParent, root->id);
+    // pParent->parSize = 1;
+    // curID++;
 }
 
 int ConcatStringTree::length() const {
@@ -247,46 +246,48 @@ ConcatStringTree ConcatStringTree::concat(const ConcatStringTree & otherS) const
     newTree.root->right = otherS.root;
 
     newTree.root->id = curID;
-    this->pParent = this->pParent->insert(this->pParent, curID);
-    otherS.pParent = otherS.pParent->insert(otherS.pParent, curID);
-    this->pParent->parSize++;
-    otherS.pParent->parSize++;
+    root->pParent = root->pParent->insert(root->pParent, curID);
+    otherS.root->pParent = otherS.root->pParent->insert(otherS.root->pParent, curID);
+    root->pParent->parSize++;
+    otherS.root->pParent->parSize++;
     curID++;
     return newTree;
 }
 
 ConcatStringTree ConcatStringTree::subString(int from, int to) const {
-    if (from < 0 || to >= size)
+    if (from < 0 || to >= root->length)
         throw out_of_range("Index of string is invalid!");
     if (from >= to)
         throw logic_error("Invalid range!");
     
-    ConcatStringTree* newTree = subStr(from, to);
+    ConcatStringTree* newTree = new ConcatStringTree("");
+    newTree->root = root->subStr(from, to);
 
     return *newTree;
 }
 
 ConcatStringTree ConcatStringTree::reverse() const {
-    ConcatStringTree* newTree = helpReverse();
+    ConcatStringTree* newTree = new ConcatStringTree("");
+    newTree->root = root->helpReverse();
     return *newTree;
 }
 
-int ConcatStringTree::getParTreeSize(const string & query) {
+int ConcatStringTree::getParTreeSize(const string & query) const{
     int length = query.length();
-    ConcatStringTree* root = this;
+    Node* temp = root;
 
     for (int i = 0; i < length; i++)
     {
-        if (!root)
+        if (!temp)
             throw runtime_error("Invalid query: reaching NULL");
         
         switch (query[i])
         {
         case 'l':
-            root = root->left;
+            temp = temp->left;
             break;
         case 'r':
-            root = root->right;
+            temp = temp->right;
             break;
 
         default:
@@ -295,12 +296,12 @@ int ConcatStringTree::getParTreeSize(const string & query) {
         }
     }
     
-    return root->pParent->size();
+    return temp->pParent->size();
 }
 
 string ConcatStringTree::getParTreeStringPreOrder(const string & query) const {
     int length = query.length();
-    ParentsTree* root = pParent;
+    Node* temp = root;
 
     for (int i = 0; i < length; i++)
     {
@@ -310,10 +311,10 @@ string ConcatStringTree::getParTreeStringPreOrder(const string & query) const {
         switch (query[i])
         {
         case 'l':
-            root = root->pLeft;
+            temp = temp->left;
             break;
         case 'r':
-            root = root->pRight;
+            temp = temp->right;
             break;
 
         default:
@@ -322,7 +323,7 @@ string ConcatStringTree::getParTreeStringPreOrder(const string & query) const {
         }
     }
 
-    return root->toStringPreOrder();
+    return temp->pParent->toStringPreOrder();
 }
 
 ConcatStringTree::~ConcatStringTree() {
@@ -333,14 +334,14 @@ ConcatStringTree::~ConcatStringTree() {
 }
 
 // ParentsTree
-int ConcatStringTree::ParentsTree::getHeight(ParentsTree* root) {
+int ConcatStringTree::Node::ParentsTree::getHeight(ParentsTree* root) {
     if (!root)
         return 0;
 
     return root->height;
 }
 
-ConcatStringTree::ParentsTree* ConcatStringTree::ParentsTree::rightRotate(ParentsTree* root) {
+ConcatStringTree::Node::ParentsTree* ConcatStringTree::Node::ParentsTree::rightRotate(ParentsTree* root) {
     ParentsTree* left = root->pLeft;
     root->pLeft = left->pRight;
     left->pRight = root;
@@ -351,7 +352,7 @@ ConcatStringTree::ParentsTree* ConcatStringTree::ParentsTree::rightRotate(Parent
     return left;
 }
 
-ConcatStringTree::ParentsTree* ConcatStringTree::ParentsTree::leftRotate(ParentsTree* root) {
+ConcatStringTree::Node::ParentsTree* ConcatStringTree::Node::ParentsTree::leftRotate(ParentsTree* root) {
     ParentsTree* right = root->pRight;
     root->pRight = right->pLeft;
     right->pLeft = root;
@@ -362,7 +363,7 @@ ConcatStringTree::ParentsTree* ConcatStringTree::ParentsTree::leftRotate(Parents
     return right;
 }
 
-ConcatStringTree::ParentsTree* ConcatStringTree::ParentsTree::insert(ParentsTree* root, int curID) {
+ConcatStringTree::Node::ParentsTree* ConcatStringTree::Node::ParentsTree::insert(ParentsTree* root, int curID) {
     if (!root) {
         return new ParentsTree(curID, nullptr, nullptr, 1);
     }
@@ -396,7 +397,7 @@ ConcatStringTree::ParentsTree* ConcatStringTree::ParentsTree::insert(ParentsTree
     return root;
 }
 
-ConcatStringTree::ParentsTree* ConcatStringTree::ParentsTree::delParsTree(ParentsTree* root, int curID) {
+ConcatStringTree::Node::ParentsTree* ConcatStringTree::Node::ParentsTree::delParsTree(ParentsTree* root, int curID) {
     if (!root)
         return root;
 
@@ -454,7 +455,7 @@ ConcatStringTree::ParentsTree* ConcatStringTree::ParentsTree::delParsTree(Parent
     return root;
 }
 
-string ConcatStringTree::ParentsTree::toStringPreOrder() const {
+string ConcatStringTree::Node::ParentsTree::toStringPreOrder() const {
     string output = "ParentsTree[";
 
     if (parSize > 0)

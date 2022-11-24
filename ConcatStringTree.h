@@ -3,47 +3,58 @@
 
 #include "main.h"
 
+// Initialize curID
+static int curID = 1;
+
 class ConcatStringTree {    
 public:    
     class Node {
         public:
+        class ParentsTree {
+            public:
+            int id, height, parSize;
+            ParentsTree* pLeft,* pRight;
+
+            ParentsTree(int curID = 0, ParentsTree* left = nullptr, ParentsTree* right = nullptr, int h = 0) : id(curID), pLeft(left), pRight(right), height(h) {}
+            int getHeight(ParentsTree*);
+            ParentsTree* rightRotate(ParentsTree*);
+            ParentsTree* leftRotate(ParentsTree*);
+            ParentsTree* insert(ParentsTree*, int);
+            ParentsTree* delParsTree(ParentsTree*, int);
+            ~ParentsTree() {}
+
+            // Helper functions
+            string preOrderString() const;
+            ParentsTree* maxID(ParentsTree*);
+            int valueBalance(ParentsTree*);
+
+            int size() const { return parSize; }
+            string toStringPreOrder() const;
+        };
+        ParentsTree* pParent;
+
         int leftLength, length, id;
         string data;
         Node* left,* right;
-        Node(string s, Node* pLeft = nullptr, Node* pRight = nullptr);
+        Node(string s, Node* pLeft = nullptr, Node* pRight = nullptr) : data(s), left(pLeft), right(pRight) {
+            leftLength = 0;
+            length = data.length(); 
+
+            pParent = nullptr;
+            id = curID;
+            pParent = pParent->insert(pParent, id);
+            pParent->parSize = 1;
+            curID++;
+        }
         ~Node() {}
 
         string preOrderString() const;
         string preOrder() const;
         int indexOf(char c) const;
+        Node* subStr(int, int) const;
+        Node* helpReverse() const;
     };
     Node* root;
-    class ParentsTree {
-        public:
-        int id, height, parSize;
-        ParentsTree* pLeft,* pRight;
-
-        ParentsTree(int curID = 0, ParentsTree* left = nullptr, ParentsTree* right = nullptr, int h = 0) : id(curID), pLeft(left), pRight(right), height(h) {}
-        int getHeight(ParentsTree*);
-        ParentsTree* rightRotate(ParentsTree*);
-        ParentsTree* leftRotate(ParentsTree*);
-        ParentsTree* insert(ParentsTree*, int);
-        ParentsTree* delParsTree(ParentsTree*, int);
-        ~ParentsTree() {}
-
-        // Helper functions
-        string preOrderString() const;
-        ParentsTree* maxID(ParentsTree*);
-        int valueBalance(ParentsTree*);
-
-        int size() const { return parSize; }
-        string toStringPreOrder() const;
-    };
-    ParentsTree* pParent;
-
-    // Helper functions
-    ConcatStringTree* subStr(int, int) const;
-    ConcatStringTree* helpReverse() const;
 
     ConcatStringTree(const char * s);
     int length() const;
@@ -55,7 +66,7 @@ public:
     ConcatStringTree subString(int from, int to) const;
     ConcatStringTree reverse() const;
 
-    int getParTreeSize(const string & query);
+    int getParTreeSize(const string & query) const;
     string getParTreeStringPreOrder(const string & query) const;
     
     ~ConcatStringTree();
