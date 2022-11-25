@@ -12,7 +12,7 @@ public:
         public:
         class ParentsTree {
             public:
-            int id, height, parSize;
+            int id = -1, height, parSize;
             ParentsTree* pLeft,* pRight;
 
             ParentsTree(int curID = 0, ParentsTree* left = nullptr, ParentsTree* right = nullptr, int h = 0) : id(curID), pLeft(left), pRight(right), height(h) {}
@@ -39,7 +39,10 @@ public:
         Node(string s, Node* pLeft = nullptr, Node* pRight = nullptr) : data(s), left(pLeft), right(pRight) {
             leftLength = 0;
             length = data.length(); 
-
+            
+            if (data.empty())
+                return;
+            
             pParent = nullptr;
             id = curID;
             pParent = pParent->insert(pParent, id);
@@ -56,6 +59,7 @@ public:
     };
     Node* root;
 
+    ConcatStringTree() : root(nullptr) {}
     ConcatStringTree(const char * s);
     int length() const;
     char get(int index) const;
@@ -85,16 +89,40 @@ private:
 
     friend class ReducedConcatStringTree;
     friend class LitStringHash;
+
+    public:
+    HashConfig() : p(-1), c1(-1), c2(-1), lambda(-1), alpha(-1), initSize(-1) {}
+    HashConfig(int P, double C1, double C2, double Lambda, int Alpha, int InitSize) : p(P), c1(C1), c2(C2), lambda(Lambda), alpha(Alpha), initSize(InitSize) {}
 };
 
 class LitStringHash {
+    HashConfig hash_config;
+    int numsEle;
+    int m;
+
+    int lastIndex; //getLastInsertedIndex...
 public:
+    class LitString {
+        public:
+        int nodeCount;
+        ConcatStringTree::Node* data;
+        
+        LitString() : nodeCount(0), data(nullptr) {}
+        ~LitString() {}
+    };
+    LitString* hashTable;
+
     LitStringHash(const HashConfig & hashConfig);
     int getLastInsertedIndex() const;
     string toString() const;
+
+    int hash(const string);
+    int quadProb(const string, const int);
+    void rehash();
+    ConcatStringTree::Node* insert(ConcatStringTree::Node*);
 };
 
-class ReducedConcatStringTree /* */ {
+class ReducedConcatStringTree : public ConcatStringTree {
 public:
     ReducedConcatStringTree(const char * s, LitStringHash * litStringHash);
     LitStringHash * litStringHash;

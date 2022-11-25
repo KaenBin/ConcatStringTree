@@ -1,0 +1,6 @@
+    ConcatStringTree s1("Hello");
+    cout << "Please focus to id: " << s1.getParTreeStringPreOrder("") << endl;
+    ConcatStringTree s2("an-nyeong-ha-se-yo");
+    cout << "Please focus to id: " << s2.getParTreeStringPreOrder("") << endl;
+    ConcatStringTree s3("nee how");
+    cout << "Please focus to id: " << s3.getParTreeStringPreOrder("") << endl;

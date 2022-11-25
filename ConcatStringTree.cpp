@@ -169,12 +169,6 @@ int ConcatStringTree::Node::indexOf(char c) const {
 // ConcatStringTree
 ConcatStringTree::ConcatStringTree(const char* s) {
     root = new Node(s);
-
-    // pParent = nullptr;
-    // root->id = curID;
-    // pParent = pParent->insert(pParent, root->id);
-    // pParent->parSize = 1;
-    // curID++;
 }
 
 int ConcatStringTree::length() const {
@@ -469,4 +463,114 @@ string ConcatStringTree::Node::ParentsTree::toStringPreOrder() const {
 
     output += "]";
     return output;
+}
+
+// LitStringHash
+LitStringHash::LitStringHash(const HashConfig & hashConfig) {
+    hash_config = hashConfig;
+    numsEle = 0;
+    m = hashConfig.initSize;
+    hashTable = new LitString[m];
+}
+
+int LitStringHash::getLastInsertedIndex() const {
+    // this function is stupid alr?
+    return lastIndex;
+}
+
+string LitStringHash::toString() const {
+    string output = "LitStringHash[";
+
+    if (m >= 1) {
+        output += "(";
+        if (hashTable[0].data) {
+            output += "litS=\"";
+            output += hashTable[0].data->data;
+            output += "\"";
+        }
+        output += ")";
+    }
+
+    for (int i = 1; i < m; i++)
+    {
+        output += ";(";
+        if (hashTable[i].data) {
+            output += "litS=\"";
+            output += hashTable[i].data->data;
+            output += "\"";
+        }
+        output += ")";
+    }
+    
+    output += "]";
+    return output;
+}
+
+int LitStringHash::hash(const string s) {
+    int n = s.length();
+    int hash_value = 0;
+    for (int i = 0; i < n; i++) {
+        int pow = 1;
+        for (int j = 0; j < i; j++)
+            pow *= hash_config.p;
+        hash_value += int(s[i]) * pow;
+    }
+    
+    return hash_value % m;
+}
+
+int LitStringHash::quadProb(const string s, const int i) {
+    return int((hash(s) + hash_config.c1 * i + hash_config.c2 * i * i)) % m;
+}
+
+void LitStringHash::rehash() {
+    int newSize = hash_config.alpha * numsEle;
+    LitString* newHashTable = new LitString[newSize];
+
+    for (int i = 0; i < m; i++)
+        if (hashTable[i].data) {
+            newHashTable[i].data = hashTable[i].data;
+            newHashTable[i].nodeCount = hashTable[i].nodeCount;
+        }
+        
+    delete hashTable;
+    m = newSize;
+    hashTable = newHashTable;
+}
+
+ConcatStringTree::Node* LitStringHash::insert(ConcatStringTree::Node* node) {
+    numsEle++;
+    if (numsEle / double(m) > hash_config.lambda)
+        rehash();
+    
+    int pos = hash(node->data);
+    for (int i = 0; i < m; i++)
+    {
+        int check = (i + pos) % m;
+        if (!hashTable[check].data)
+        {
+            hashTable[check].data = node;
+            hashTable[check].nodeCount++;
+            lastIndex = check;
+            return hashTable[check].data;
+        }
+        if (hashTable[check].data->data == node->data) {
+            delete node;
+            lastIndex = check;
+            return hashTable[check].data;
+        }
+    }
+    
+    return nullptr;
+}
+
+// ReducedConcatStringTree
+ReducedConcatStringTree::ReducedConcatStringTree(const char * s, LitStringHash * litStringHash) {
+    Node* newNode = new Node (s);
+    root = litStringHash->insert(newNode);
+
+    if (!root)
+        throw runtime_error("No possible slot");
+
+    this->litStringHash = litStringHash;
 }
