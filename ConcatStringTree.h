@@ -15,7 +15,7 @@ public:
             int id = -1, height, parSize;
             ParentsTree* pLeft,* pRight;
 
-            ParentsTree(int curID = 0, ParentsTree* left = nullptr, ParentsTree* right = nullptr, int h = 0) : id(curID), pLeft(left), pRight(right), height(h) {}
+            ParentsTree(int curID = 0, ParentsTree* left = nullptr, ParentsTree* right = nullptr, int h = 0) : id(curID), pLeft(left), pRight(right), height(h), parSize(1) {}
             int getHeight(ParentsTree*);
             ParentsTree* rightRotate(ParentsTree*);
             ParentsTree* leftRotate(ParentsTree*);
@@ -49,7 +49,7 @@ public:
             pParent->parSize = 1;
             curID++;
         }
-        ~Node() {}
+        ~Node();
 
         string preOrderString() const;
         string preOrder() const;

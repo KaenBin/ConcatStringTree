@@ -20,6 +20,8 @@ int main() {
     // ConcatStringTree* s1 = new ConcatStringTree("a");
     // ConcatStringTree* s2 = new ConcatStringTree("b");
     // ConcatStringTree* s3 = new ConcatStringTree(s1->concat(*s2));
+    // ConcatStringTree* s4 = new ConcatStringTree(s1->concat(*s2));
+    // ConcatStringTree* s5 = new ConcatStringTree(s1->concat(*s2));
     // cout << s3->getParTreeSize("l") << endl;
     // cout << s3->getParTreeStringPreOrder("l") << endl;
 
@@ -46,5 +48,5 @@ int main() {
     delete s1;
     delete s2;
     delete litStringHash;
-    return 0;
+    // return 0;
 }

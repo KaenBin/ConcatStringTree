@@ -132,6 +132,24 @@ int ConcatStringTree::Node::ParentsTree::valueBalance(ParentsTree* root) {
 }
 // Node
 
+ConcatStringTree::Node::~Node() {
+    if (!this)
+        return;
+
+    if (data != "")
+        pParent = pParent->delParsTree(pParent, id);
+    if (left) {
+        left->pParent = left->pParent->delParsTree(left->pParent, id);
+        if (!left->pParent)
+            delete left;
+    }
+    if (right) {
+        right->pParent = right->pParent->delParsTree(right->pParent, id);
+        if (!right->pParent)
+            delete right;
+    }
+}
+
 int ConcatStringTree::Node::indexOf(char c) const {
     int pos = -1;
     if (!left && !right)
@@ -321,10 +339,12 @@ string ConcatStringTree::getParTreeStringPreOrder(const string & query) const {
 }
 
 ConcatStringTree::~ConcatStringTree() {
-    // if (!pParent)
-    //     return;
-    
+    if (!this)
+        return;
 
+    if (root)
+        if (!root->pParent)
+            delete root;
 }
 
 // ParentsTree
@@ -358,9 +378,8 @@ ConcatStringTree::Node::ParentsTree* ConcatStringTree::Node::ParentsTree::leftRo
 }
 
 ConcatStringTree::Node::ParentsTree* ConcatStringTree::Node::ParentsTree::insert(ParentsTree* root, int curID) {
-    if (!root) {
+    if (!root)
         return new ParentsTree(curID, nullptr, nullptr, 1);
-    }
 
     if (curID > root->id)
         root->pRight = insert(root->pRight, curID);
@@ -370,6 +389,7 @@ ConcatStringTree::Node::ParentsTree* ConcatStringTree::Node::ParentsTree::insert
         return root;
 
     root->height = 1 + max(getHeight(root->pLeft), getHeight(root->pRight));
+    root->parSize++;
 
     int valBalance = getHeight(root->pLeft) - getHeight(root->pRight);
     
@@ -427,6 +447,7 @@ ConcatStringTree::Node::ParentsTree* ConcatStringTree::Node::ParentsTree::delPar
         return root;
  
     root->height = 1 + max(getHeight(root->pLeft), getHeight(root->pRight));
+    root->parSize--;
 
     int valBalance = valueBalance(root);
 
@@ -539,16 +560,15 @@ void LitStringHash::rehash() {
 }
 
 ConcatStringTree::Node* LitStringHash::insert(ConcatStringTree::Node* node) {
-    numsEle++;
-    if (numsEle / double(m) > hash_config.lambda)
-        rehash();
-    
     int pos = hash(node->data);
     for (int i = 0; i < m; i++)
     {
         int check = (i + pos) % m;
         if (!hashTable[check].data)
         {
+            numsEle++;
+            if (numsEle / double(m) > hash_config.lambda)
+                rehash();
             hashTable[check].data = node;
             hashTable[check].nodeCount++;
             lastIndex = check;
