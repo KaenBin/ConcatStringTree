@@ -260,8 +260,8 @@ ConcatStringTree ConcatStringTree::concat(const ConcatStringTree & otherS) const
     newTree.root->id = curID;
     root->pParent = root->pParent->insert(root->pParent, curID);
     otherS.root->pParent = otherS.root->pParent->insert(otherS.root->pParent, curID);
-    root->pParent->parSize++;
-    otherS.root->pParent->parSize++;
+    // root->pParent->parSize++;
+    // otherS.root->pParent->parSize++;
     curID++;
     return newTree;
 }
@@ -492,6 +492,11 @@ LitStringHash::LitStringHash(const HashConfig & hashConfig) {
     numsEle = 0;
     m = hashConfig.initSize;
     hashTable = new LitString[m];
+}
+
+LitStringHash::~LitStringHash() {
+    for (int i = 0; i < m; i++)
+        delete hashTable[i].data;
 }
 
 int LitStringHash::getLastInsertedIndex() const {

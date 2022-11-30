@@ -44,9 +44,13 @@ int main() {
     cout << litStringHash->getLastInsertedIndex() << endl;
     cout << litStringHash->toString() << endl;
 
-    delete s3;
-    delete s1;
-    delete s2;
+    // delete s3;
+    // delete s1;
+    // delete s2;
     delete litStringHash;
+
+    cout << s1->toString() << endl;
+    cout << s2->toString() << endl;
+
     // return 0;
 }

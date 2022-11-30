@@ -113,6 +113,7 @@ public:
     LitString* hashTable;
 
     LitStringHash(const HashConfig & hashConfig);
+    ~LitStringHash();
     int getLastInsertedIndex() const;
     string toString() const;
 
